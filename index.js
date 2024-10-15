@@ -18,13 +18,21 @@ server.listen(port,()=>{
 let connectedUsers={}
 io.on("connection",(socket)=>{
     console.log("Heyo")
-    connectedUsers[socket.id]=0;
+    connectedUsers[socket.id] = { timeouts: [], isSent: false };
     socket.on("send_private_message",(data)=>{
-        if(connectedUsers[socket.id]===0){
+        if(!connectedUsers[socket.id].isSent){
            for(let i=0;i<1000;i++){
-               setTimeout(()=>{io.to(socket.id).emit("receive_message",{obj1:Math.floor(Math.random()*8000+1000),obj2:Math.floor(Math.random()*8000+1000),obj3:Math.floor(Math.random()*8000+1000)}
+               const timeoutId=setTimeout(()=>{io.to(socket.id).emit("receive_message",{obj1:Math.floor(Math.random()*8000+1000),obj2:Math.floor(Math.random()*8000+1000),obj3:Math.floor(Math.random()*8000+1000)}
                )},1100*i);
-               connectedUsers[socket.id]=1;
-          }}
+               connectedUsers[socket.id].timeouts.push(timeoutId);
+          }
+          connectedUsers[socket.id].isSent=true;
+        }
+    })
+    socket.on("disconnect",()=>{
+        connectedUsers[socket.id].timeouts.forEach((timeoutId) => {
+            clearTimeout(timeoutId);
+          });
+          delete connectedUsers[socket.id];
     })
 })
