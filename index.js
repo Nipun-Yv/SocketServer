@@ -7,7 +7,7 @@ const app1=express();
 const server=http1.createServer(app1);
 const io=new Server(server,{
     cors:{
-        origin:'http://localhost:3000',
+        origin:'https://resilient-figolla-f8bd99.netlify.app',
         methods:["GET","POST"]
     }
 })
